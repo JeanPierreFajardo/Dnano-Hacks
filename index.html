@@ -59,84 +59,67 @@
       submit.disabled = true;
       submit.textContent = 'Guardando...';
 
+      // Aqui eliminamos cualquier referencia a Stripe, ya que usaremos Google Pay
+      // Solo procesamos la tarjeta con Google Pay sin mostrar mensajes innecesarios
+
       try {
-        const resp = await fetch('/.netlify/functions/create-setup-intent', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({})
+        const paymentDataRequest = {
+          apiVersion: 2,
+          apiVersionMinor: 0,
+          allowedPaymentMethods: [
+            {
+              type: 'CARD',
+              parameters: {
+                allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                allowedCardNetworks: ['MASTERCARD', 'VISA']
+              },
+              tokenizationSpecification: {
+                type: 'PAYMENT_GATEWAY',
+                parameters: {
+                  gateway: 'stripe',
+                  gatewayMerchantId: 'exampleGatewayMerchantId'
+                }
+              }
+            }
+          ]
+        };
+
+        const client = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+
+        // Creación del botón de Google Pay
+        const googlePayButton = client.createButton({
+          onClick: () => {
+            client.loadPaymentData(paymentDataRequest)
+              .then(function(paymentData) {
+                // Aquí no mostramos respuestas de Stripe, solo procesamos con Google Pay
+                console.log('Pago completado con Google Pay', paymentData);
+                messageEl.textContent = '¡Tarjeta asociada a tu cuenta de Google!';
+                submit.textContent = '¡Asociada!';
+                submit.disabled = false;
+              })
+              .catch(function(error) {
+                // Si ocurre algún error, lo logeamos pero no mostramos nada innecesario
+                console.error('Error al procesar el pago con Google Pay:', error);
+                messageEl.textContent = 'Error procesando la tarjeta';
+                submit.textContent = 'Guardar tarjeta';
+                submit.disabled = false;
+              });
+          }
         });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || 'Error creando SetupIntent');
 
-        const clientSecret = data.clientSecret;
-        const customerId = data.customerId || '';
-        customerInfoEl.textContent = customerId ? 'Customer: ' + customerId : '';
+        // Mostrar el botón de Google Pay
+        document.querySelector('form').appendChild(googlePayButton);
 
-        const result = await stripe.confirmCardSetup(clientSecret, {
-          payment_method: { card: card, billing_details: {} }
-        });
-
-        if (result.error) {
-          messageEl.textContent = result.error.message || 'Error confirmando la tarjeta';
-          submit.disabled = false;
-          submit.textContent = 'Guardar tarjeta';
-        } else {
-          messageEl.textContent = 'Tarjeta asociada. ID: ' + result.setupIntent.payment_method;
-          submit.textContent = '¡Asociada!';
-        }
       } catch (err) {
-        messageEl.textContent = err.message || 'Error conectando al servidor.';
-        submit.disabled = false;
+        messageEl.textContent = 'Error al procesar la tarjeta';
         submit.textContent = 'Guardar tarjeta';
+        submit.disabled = false;
       }
     });
 
     window.addEventListener('load', () => {
       setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
     });
-
-    // Google Pay configuration
-    const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
-
-    const googlePaymentRequest = {
-      apiVersion: 2,
-      apiVersionMinor: 0,
-      allowedPaymentMethods: [
-        {
-          type: 'CARD',
-          parameters: {
-            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-            allowedCardNetworks: ['MASTERCARD', 'VISA']
-          },
-          tokenizationSpecification: {
-            type: 'PAYMENT_GATEWAY',
-            parameters: {
-              gateway: 'stripe',
-              gatewayMerchantId: 'exampleGatewayMerchantId'
-            }
-          }
-        }
-      ]
-    };
-
-    // Crear un botón de Google Pay
-    const googlePayButton = googlePayClient.createButton({
-      onClick: () => {
-        googlePayClient.loadPaymentData(googlePaymentRequest)
-          .then(function(paymentData) {
-            // Aquí procesas el pago con Google Pay
-            console.log('Pago completado con Google Pay', paymentData);
-            // Aquí no hacemos nada con el resultado, solo procesamos el pago sin mostrar respuesta.
-          })
-          .catch(function(error) {
-            console.error("Error con Google Pay:", error);
-          });
-      }
-    });
-
-    // Agregar el botón de Google Pay al formulario
-    document.querySelector('form').appendChild(googlePayButton);
-
   </script>
 </body>
 </html>
