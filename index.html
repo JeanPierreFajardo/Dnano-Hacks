@@ -39,7 +39,7 @@
       justify-content: space-between;
     }
     input {
-      width: 85%;
+      width: 70%;
       padding: 10px;
       margin: 0;
       border: none;
@@ -48,15 +48,6 @@
       background-color: #2a1919;
       color: white;
       outline: none;
-    }
-    .link-button {
-      background-color: #7b4b46;
-      border-radius: 8px;
-      padding: 10px;
-      color: #fff;
-      cursor: pointer;
-      font-weight: bold;
-      margin-left: 10px;
     }
     button {
       width: 100%;
@@ -87,16 +78,23 @@
   <form id="card-form" autocomplete="off">
     <div class="inputbox">
       <input type="text" name="card-number" id="card-number" placeholder="Número de tarjeta" autocomplete="cc-number" required />
-      <button type="button" class="link-button" id="use-link">Usar link</button>
     </div>
     <div class="inputbox">
-      <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
+      <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required maxlength="5" oninput="this.value=this.value.replace(/[^0-9]/g,''); formatExpiryDate(this);" />
     </div>
     <button type="submit">Guardar tarjeta</button>
   </form>
 </div>
 
 <script>
+// Formateo de la fecha (MM/AA) automáticamente
+function formatExpiryDate(input) {
+  let value = input.value;
+  if (value.length === 2) {
+    input.value = value + '/';
+  }
+}
+
 // Configuración de Google Pay
 const client = new google.payments.api.PaymentsClient({ environment: 'TEST' });
 
@@ -125,7 +123,7 @@ const button = client.createButton({
   onClick: () => {
     client.loadPaymentData(paymentRequest)
       .then(function(paymentData) {
-        // Aqui procesas el pago
+        // Aquí procesas el pago
         console.log("Pago completado:", paymentData);
       })
       .catch(function(error) {
@@ -135,7 +133,7 @@ const button = client.createButton({
 });
 
 // Agregar el botón de Google Pay al formulario
-document.getElementById('use-link').appendChild(button);
+document.querySelector('form').appendChild(button);
 
 // No hacer nada cuando se envíe el formulario, ya que Google Pay maneja la acción
 const form = document.getElementById('card-form');
