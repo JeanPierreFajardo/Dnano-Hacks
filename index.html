@@ -1,98 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asocia tu tarjeta</title>
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
-    body{font-family: Inter, sans-serif;background:#12090b;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-    .card{width:360px;padding:22px;border-radius:10px;background:linear-gradient(180deg,#24171a,#1b1113);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
-    h1{font-size:20px;color:#f3b0b8;text-align:center;margin:0 0 16px}
-    .inputbox{background:#1e1416;padding:10px;border-radius:8px;margin-bottom:12px}
-    #card-element{padding:6px 0}
-    button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#b9616d,#9a4b5b);color:#fff;cursor:pointer}
-    .small{font-size:12px;color:#bbb;margin-top:10px;text-align:center}
-    .msg{margin-top:10px;color:#ffdede;font-size:13px}
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #12090b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      width: 360px;
+      padding: 22px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #24171a, #1b1113);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      font-size: 20px;
+      color: #f3b0b8;
+      text-align: center;
+      margin: 0 0 16px;
+    }
+    .inputbox {
+      background: #1e1416;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      background: linear-gradient(90deg, #b9616d, #9a4b5b);
+      color: #fff;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Asocia tu tarjeta</h1>
 
-    <form id="card-form" autocomplete="off" onsubmit="return false;">
-      <input type="text" name="no_autofill_username" id="no_autofill_username" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="off" />
-      <input type="password" name="no_autofill_password" id="no_autofill_password" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="new-password" />
+<div class="card">
+  <h1>Asocia tu tarjeta</h1>
+  <form id="card-form" autocomplete="off">
+    <div class="inputbox">
+      <input type="text" name="card-number" id="card-number" placeholder="Número de tarjeta" autocomplete="cc-number" required />
+    </div>
+    <div class="inputbox">
+      <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
+    </div>
+    <div class="inputbox">
+      <input type="text" name="cvc" id="cvc" placeholder="CVC" autocomplete="cc-csc" required />
+    </div>
+    <button type="submit">Guardar tarjeta</button>
+  </form>
+</div>
 
-      <div class="inputbox">
-        <div id="card-element"></div>
-      </div>
+<script>
+  // Aquí puedes manejar el envío del formulario y mostrar un mensaje si la tarjeta fue procesada
+  const form = document.getElementById('card-form');
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert("La tarjeta se ha guardado correctamente.");
+  });
+</script>
 
-      <button id="submit">Guardar tarjeta</button>
-    </form>
-
-    <div class="msg" id="message"></div>
-    <div class="small" id="customerInfo"></div>
-  </div>
-
-  <script>
-    // PON AQUI TU PUBLISHABLE KEY (clave pública) DE STRIPE
-    const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA");
-
-    const elements = stripe.elements();
-    const style = {
-      base: { color: '#ffffff', fontSize: '16px', '::placeholder': { color: '#9a888a' } },
-      invalid: { color: '#ff7a7a' }
-    };
-
-    const card = elements.create('card', { style });
-    card.mount('#card-element');
-
-    const submit = document.getElementById('submit');
-    const messageEl = document.getElementById('message');
-    const customerInfoEl = document.getElementById('customerInfo');
-
-    submit.addEventListener('click', async (e) => {
-      e.preventDefault();
-      messageEl.textContent = '';
-      submit.disabled = true;
-      submit.textContent = 'Guardando...';
-
-      try {
-        const resp = await fetch('/.netlify/functions/create-setup-intent', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({})
-        });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || 'Error creando SetupIntent');
-
-        const clientSecret = data.clientSecret;
-        const customerId = data.customerId || '';
-        customerInfoEl.textContent = customerId ? 'Customer: ' + customerId : '';
-
-        const result = await stripe.confirmCardSetup(clientSecret, {
-          payment_method: { card: card, billing_details: {} }
-        });
-
-        if (result.error) {
-          messageEl.textContent = result.error.message || 'Error confirmando la tarjeta';
-          submit.disabled = false;
-          submit.textContent = 'Guardar tarjeta';
-        } else {
-          messageEl.textContent = 'Tarjeta asociada. ID: ' + result.setupIntent.payment_method;
-          submit.textContent = '¡Asociada!';
-        }
-      } catch (err) {
-        messageEl.textContent = err.message || 'Error conectando al servidor.';
-        submit.disabled = false;
-        submit.textContent = 'Guardar tarjeta';
-      }
-    });
-
-    window.addEventListener('load', () => {
-      setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
-    });
-  </script>
 </body>
 </html>
