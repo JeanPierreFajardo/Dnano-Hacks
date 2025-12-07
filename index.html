@@ -30,6 +30,7 @@
     }
     #googlePayButton {
       margin-top: 20px;
+      width: 100%;
     }
   </style>
 </head>
@@ -58,8 +59,8 @@
         tokenizationSpecification: {
           type: 'PAYMENT_GATEWAY',
           parameters: {
-            'gateway': 'stripe', // Pasarela que usas
-            'gatewayMerchantId': 'YOUR_GATEWAY_MERCHANT_ID' // Cambiar con el ID de tu pasarela
+            'gateway': 'stripe', // Cambiar por tu pasarela de pago
+            'gatewayMerchantId': 'YOUR_GATEWAY_MERCHANT_ID' // Cambiar con tu ID de comerciante
           }
         }
       }],
@@ -97,7 +98,7 @@
         .then(function(paymentData) {
           // Aquí se maneja la respuesta del pago (token, etc.)
           console.log(paymentData);
-          // Enviar el token de pago al servidor para completar el pago
+          // Aquí enviarías el token al servidor para procesar el pago
         })
         .catch(function(error) {
           console.error(error);
