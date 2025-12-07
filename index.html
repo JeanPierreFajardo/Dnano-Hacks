@@ -65,19 +65,16 @@
     <div class="inputbox">
       <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
     </div>
-    <div class="inputbox">
-      <input type="text" name="cvc" id="cvc" placeholder="CVC" autocomplete="cc-csc" required />
-    </div>
     <button type="submit">Guardar tarjeta</button>
   </form>
 </div>
 
 <script>
-  // Aquí puedes manejar el envío del formulario y mostrar un mensaje si la tarjeta fue procesada
+  // Aquí eliminamos cualquier acción adicional, solo para activarse en Google Pay
   const form = document.getElementById('card-form');
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-    alert("La tarjeta se ha guardado correctamente.");
+    // No hacemos nada al enviar el formulario
   });
 </script>
 
