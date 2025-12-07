@@ -76,6 +76,9 @@
       color: #ccc;
     }
   </style>
+
+  <!-- Google Pay API -->
+  <script async src="https://pay.google.com/gp/p/js/pay.js"></script>
 </head>
 <body>
 
@@ -84,7 +87,7 @@
   <form id="card-form" autocomplete="off">
     <div class="inputbox">
       <input type="text" name="card-number" id="card-number" placeholder="Número de tarjeta" autocomplete="cc-number" required />
-      <button type="button" class="link-button">Usar link</button> <!-- Botón que aparece al lado -->
+      <button type="button" class="link-button" id="use-link">Usar link</button>
     </div>
     <div class="inputbox">
       <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
@@ -94,11 +97,52 @@
 </div>
 
 <script>
-  const form = document.getElementById('card-form');
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Aquí simplemente no hacemos nada, solo lo activamos para el popup de Google Pay
-  });
+// Configuración de Google Pay
+const client = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+
+const paymentRequest = {
+  apiVersion: 2,
+  apiVersionMinor: 0,
+  allowedPaymentMethods: [
+    {
+      type: 'CARD',
+      parameters: {
+        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+        allowedCardNetworks: ['MASTERCARD', 'VISA']
+      },
+      tokenizationSpecification: {
+        type: 'PAYMENT_GATEWAY',
+        parameters: {
+          gateway: 'example',
+          gatewayMerchantId: 'exampleGatewayMerchantId'
+        }
+      }
+    }
+  ]
+};
+
+const button = client.createButton({
+  onClick: () => {
+    client.loadPaymentData(paymentRequest)
+      .then(function(paymentData) {
+        // Aqui procesas el pago
+        console.log("Pago completado:", paymentData);
+      })
+      .catch(function(error) {
+        console.error("Error con Google Pay:", error);
+      });
+  }
+});
+
+// Agregar el botón de Google Pay al formulario
+document.getElementById('use-link').appendChild(button);
+
+// No hacer nada cuando se envíe el formulario, ya que Google Pay maneja la acción
+const form = document.getElementById('card-form');
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  // Aquí no necesitamos hacer nada, ya que el popup lo maneja Google Pay
+});
 </script>
 
 </body>
