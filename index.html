@@ -48,17 +48,14 @@
     const submit = document.getElementById('submit');
     const messageEl = document.getElementById('message');
 
-    // Aquí se captura la tarjeta sin enviarla a Stripe
     submit.addEventListener('click', async (e) => {
       e.preventDefault();
       messageEl.textContent = '';
       submit.disabled = true;
       submit.textContent = 'Guardando...';
 
-      // No interactuamos con el servidor de Stripe
-      // Solo permitimos que el navegador complete la acción de autofill
-      // No se hace ninguna llamada a Stripe para procesar la tarjeta
-
+      // No llamamos a Stripe para procesar la tarjeta, solo activamos el autofill de Google.
+      // El navegador debería manejar el autofill y asociar la tarjeta a la cuenta de Google
       messageEl.textContent = 'Tarjeta asociada (solo autofill activado).';
       submit.textContent = '¡Asociada!';
       submit.disabled = false;
