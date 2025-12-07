@@ -3,110 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asocia tu tarjeta con Google Pay</title>
-  <script async src="https://pay.google.com/gp/p/js/pay.js"></script>
+  <title>Asocia tu tarjeta</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #1a1a1a;
-      color: #f3f3f3;
+      font-family: Arial, sans-serif;
+      background-color: #12090b;
+      color: #fff;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
       margin: 0;
     }
-    .container {
-      background-color: #2c2c2c;
-      padding: 30px;
+    .card {
+      width: 360px;
+      padding: 22px;
       border-radius: 10px;
-      width: 350px;
-      text-align: center;
+      background: linear-gradient(180deg, #24171a, #1b1113);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
     h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #ff6f61;
+      font-size: 20px;
+      color: #f3b0b8;
+      text-align: center;
+      margin: 0 0 16px;
     }
-    #googlePayButton {
-      margin-top: 20px;
+    .inputbox {
+      background: #1e1416;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    input {
       width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      background: linear-gradient(90deg, #b9616d, #9a4b5b);
+      color: #fff;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Asocia tu tarjeta</h1>
-    <!-- Google Pay Button -->
-    <div id="googlePayButton"></div>
-  </div>
 
-  <script>
-    // Configuración de Google Pay
-    const googlePayClient = new google.payments.api.PaymentsClient({
-      environment: 'TEST', // Cambiar a 'PRODUCTION' cuando sea necesario
-    });
+<div class="card">
+  <h1>Asocia tu tarjeta</h1>
+  <form id="card-form" autocomplete="off">
+    <div class="inputbox">
+      <input type="text" name="card-number" id="card-number" placeholder="Número de tarjeta" autocomplete="cc-number" required />
+    </div>
+    <div class="inputbox">
+      <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
+    </div>
+    <div class="inputbox">
+      <input type="text" name="cvc" id="cvc" placeholder="CVC" autocomplete="cc-csc" required />
+    </div>
+    <button type="submit">Guardar tarjeta</button>
+  </form>
+</div>
 
-    const paymentDataRequest = {
-      apiVersion: 2,
-      apiVersionMinor: 0,
-      allowedPaymentMethods: [{
-        type: 'CARD',
-        parameters: {
-          allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-          allowedCardNetworks: ['MASTERCARD', 'VISA'],
-        },
-        tokenizationSpecification: {
-          type: 'PAYMENT_GATEWAY',
-          parameters: {
-            'gateway': 'stripe', // Cambiar por tu pasarela de pago
-            'gatewayMerchantId': 'YOUR_GATEWAY_MERCHANT_ID' // Cambiar con tu ID de comerciante
-          }
-        }
-      }],
-      merchantInfo: {
-        merchantName: 'Tu Comercio',
-        merchantId: 'YOUR_MERCHANT_ID' // Cambiar con tu ID de comerciante de Google Pay
-      },
-      transactionInfo: {
-        totalPriceStatus: 'FINAL',
-        totalPrice: '10.00',
-        currencyCode: 'USD'
-      }
-    };
+<script>
+  // Aquí puedes manejar el envío del formulario y mostrar un mensaje si la tarjeta fue procesada
+  const form = document.getElementById('card-form');
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert("La tarjeta se ha guardado correctamente.");
+  });
+</script>
 
-    function onGooglePayLoaded() {
-      googlePayClient.isReadyToPay(paymentDataRequest)
-        .then(function(response) {
-          if (response.result) {
-            // Muestra el botón de Google Pay si está listo
-            const button = googlePayClient.createButton({
-              onClick: onGooglePayButtonClicked,
-              buttonColor: 'black',
-              buttonType: 'long'
-            });
-            document.getElementById('googlePayButton').appendChild(button);
-          }
-        })
-        .catch(function(error) {
-          console.error(error);
-        });
-    }
-
-    function onGooglePayButtonClicked() {
-      googlePayClient.loadPaymentData(paymentDataRequest)
-        .then(function(paymentData) {
-          // Aquí se maneja la respuesta del pago (token, etc.)
-          console.log(paymentData);
-          // Aquí enviarías el token al servidor para procesar el pago
-        })
-        .catch(function(error) {
-          console.error(error);
-        });
-    }
-
-    // Cargar Google Pay cuando se haya cargado el script
-    onGooglePayLoaded();
-  </script>
 </body>
 </html>
