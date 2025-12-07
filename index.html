@@ -6,12 +6,12 @@
   <title>Asocia tu tarjeta</title>
   <script src="https://js.stripe.com/v3/"></script>
   <style>
-    body{font-family: Inter, sans-serif;background:#12090b;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-    .card{width:360px;padding:22px;border-radius:10px;background:linear-gradient(180deg,#24171a,#1b1113);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
-    h1{font-size:20px;color:#f3b0b8;text-align:center;margin:0 0 16px}
-    .inputbox{background:#1e1416;padding:10px;border-radius:8px;margin-bottom:12px}
+    body{font-family: Inter, sans-serif;background:#1d1f20;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .card{width:360px;padding:22px;border-radius:10px;background:linear-gradient(180deg,#232526,#414345);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
+    h1{font-size:20px;color:#4e92a4;text-align:center;margin:0 0 16px}
+    .inputbox{background:#333738;padding:10px;border-radius:8px;margin-bottom:12px}
     #card-element{padding:6px 0}
-    button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#b9616d,#9a4b5b);color:#fff;cursor:pointer}
+    button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#2f6a84,#1b4e61);color:#fff;cursor:pointer}
     .small{font-size:12px;color:#bbb;margin-top:10px;text-align:center}
     .msg{margin-top:10px;color:#ffdede;font-size:13px}
   </style>
@@ -22,7 +22,7 @@
 
     <form id="card-form" autocomplete="off" onsubmit="return false;">
       <input type="text" name="no_autofill_username" id="no_autofill_username" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="off" />
-      <input type="password" name="no_autofill_password" id="no_autofill_password" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="new-password" />
+      <input type="password" name="no_autofill_password" id="no_autofill_password" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="new-password" />  
 
       <div class="inputbox">
         <div id="card-element"></div>
@@ -48,11 +48,9 @@
     const submit = document.getElementById('submit');
     const messageEl = document.getElementById('message');
 
-    
     window.addEventListener('load', () => {
       setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
     });
   </script>
 </body>
 </html>
-
