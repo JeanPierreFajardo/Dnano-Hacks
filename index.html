@@ -18,29 +18,36 @@
     .card {
       width: 360px;
       padding: 22px;
-      border-radius: 10px;
+      border-radius: 12px;
       background: linear-gradient(180deg, #24171a, #1b1113);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      font-size: 16px;
     }
     h1 {
-      font-size: 20px;
+      font-size: 22px;
       color: #f3b0b8;
       text-align: center;
-      margin: 0 0 16px;
+      margin: 0 0 20px;
     }
     .inputbox {
       background: #1e1416;
-      padding: 10px;
+      padding: 14px;
       border-radius: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
+      width: 90%;
+      padding: 10px;
+      margin: 0;
       border: none;
+      border-radius: 8px;
       font-size: 16px;
+      background-color: #2a1919;
+      color: white;
+      outline: none;
     }
     button {
       width: 100%;
@@ -51,6 +58,13 @@
       background: linear-gradient(90deg, #b9616d, #9a4b5b);
       color: #fff;
       cursor: pointer;
+      font-size: 16px;
+    }
+    input:focus {
+      background-color: #3a2323;
+    }
+    input::placeholder {
+      color: #ccc;
     }
   </style>
 </head>
@@ -65,16 +79,18 @@
     <div class="inputbox">
       <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
     </div>
+    <div class="inputbox">
+      <input type="text" name="cvc" id="cvc" placeholder="CVC" autocomplete="cc-csc" required />
+    </div>
     <button type="submit">Guardar tarjeta</button>
   </form>
 </div>
 
 <script>
-  // Aquí eliminamos cualquier acción adicional, solo para activarse en Google Pay
   const form = document.getElementById('card-form');
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-    // No hacemos nada al enviar el formulario
+    // Aquí simplemente no hacemos nada, solo lo activamos para el popup de Google Pay
   });
 </script>
 
