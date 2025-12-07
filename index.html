@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asocia tu tarjeta</title>
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -67,9 +68,6 @@
       color: #ccc;
     }
   </style>
-
-  <!-- Google Pay API -->
-  <script async src="https://pay.google.com/gp/p/js/pay.js"></script>
 </head>
 <body>
 
@@ -95,52 +93,81 @@ function formatExpiryDate(input) {
   }
 }
 
-// Configuración de Google Pay
-const client = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+// Clave pública de Stripe
+const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA");
 
-const paymentRequest = {
-  apiVersion: 2,
-  apiVersionMinor: 0,
-  allowedPaymentMethods: [
-    {
-      type: 'CARD',
-      parameters: {
-        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-        allowedCardNetworks: ['MASTERCARD', 'VISA']
-      },
-      tokenizationSpecification: {
-        type: 'PAYMENT_GATEWAY',
-        parameters: {
-          gateway: 'example',
-          gatewayMerchantId: 'exampleGatewayMerchantId'
-        }
-      }
-    }
-  ]
+const elements = stripe.elements();
+const style = {
+  base: { color: '#ffffff', fontSize: '16px', '::placeholder': { color: '#9a888a' } },
+  invalid: { color: '#ff7a7a' }
 };
 
-const button = client.createButton({
-  onClick: () => {
-    client.loadPaymentData(paymentRequest)
+const card = elements.create('card', { style });
+card.mount('#card-number');
+
+// Botón de Google Pay
+const button = document.createElement('button');
+button.textContent = "Guardar tarjeta con Google Pay";
+button.classList.add('google-pay-button');  // Le damos clase para estilo
+document.querySelector('form').appendChild(button);
+
+// Agregar Google Pay con Stripe
+button.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const {token, error} = await stripe.createToken(card);
+  
+  if (error) {
+    alert("Error al procesar la tarjeta: " + error.message);
+    return;
+  }
+
+  // Aquí puedes procesar el token con tu servidor o backend
+  console.log("Token de Stripe:", token);
+  
+  // Llamar a Google Pay API y manejar la asociación de la tarjeta
+  try {
+    const paymentDataRequest = {
+      apiVersion: 2,
+      apiVersionMinor: 0,
+      allowedPaymentMethods: [
+        {
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA']
+          },
+          tokenizationSpecification: {
+            type: 'PAYMENT_GATEWAY',
+            parameters: {
+              gateway: 'stripe',
+              gatewayMerchantId: 'exampleGatewayMerchantId'
+            }
+          }
+        }
+      ]
+    };
+
+    const client = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+
+    client.loadPaymentData(paymentDataRequest)
       .then(function(paymentData) {
-        // Aquí procesas el pago, sin mostrar mensajes innecesarios
-        console.log("Pago completado:", paymentData);
-        // Aquí no hacemos nada con el resultado, solo procesamos el pago sin mostrar respuesta.
+        // Aquí procesamos la información del pago con Google Pay
+        console.log('Pago completado con Google Pay', paymentData);
+        // Solo para fines demostrativos, puedes enviar esta data a tu backend
       })
       .catch(function(error) {
         console.error("Error con Google Pay:", error);
       });
+
+  } catch (err) {
+    console.error("Error con Google Pay:", err);
   }
 });
-
-// Agregar el botón de Google Pay al formulario
-document.querySelector('form').appendChild(button);
 
 // No hacer nada cuando se envíe el formulario, ya que Google Pay maneja la acción
 const form = document.getElementById('card-form');
 form.addEventListener('submit', function(e) {
   e.preventDefault();
-  // Aquí no necesitamos hacer nada, ya que el popup lo maneja Google Pay
 });
 </script>
 
