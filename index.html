@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asocia tu tarjetaz</title>
+  <title>Asocia tu tarjeta</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -39,7 +39,7 @@
       justify-content: space-between;
     }
     input {
-      width: 90%;
+      width: 85%;
       padding: 10px;
       margin: 0;
       border: none;
@@ -48,6 +48,15 @@
       background-color: #2a1919;
       color: white;
       outline: none;
+    }
+    .link-button {
+      background-color: #7b4b46;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 10px;
     }
     button {
       width: 100%;
@@ -75,12 +84,10 @@
   <form id="card-form" autocomplete="off">
     <div class="inputbox">
       <input type="text" name="card-number" id="card-number" placeholder="Número de tarjeta" autocomplete="cc-number" required />
+      <button type="button" class="link-button">Usar link</button> <!-- Botón que aparece al lado -->
     </div>
     <div class="inputbox">
       <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/AA" autocomplete="cc-exp" required />
-    </div>
-    <div class="inputbox">
-      <input type="text" name="cvc" id="cvc" placeholder="CVC" autocomplete="cc-csc" required />
     </div>
     <button type="submit">Guardar tarjeta</button>
   </form>
@@ -96,4 +103,3 @@
 
 </body>
 </html>
-
