@@ -78,7 +78,7 @@
       <button id="submit">Guardar tarjeta</button>
 
       <!-- Botón de Google Pay para abrir la ventana de Google Pay -->
-      <button id="google-pay-button" style="background-color: #4285f4;">Abrir Google Pay</button>
+      <div id="google-pay-button"></div>
     </form>
 
     <div class="msg" id="message"></div>
@@ -132,16 +132,29 @@
       });
 
       document.getElementById('google-pay-button').appendChild(button);
+    }
 
-      // Función para abrir la ventana de Google Pay
-      function onGooglePayButtonClicked() {
-        googlePayClient.loadPaymentData(paymentRequest).then(function(paymentData) {
-          console.log(paymentData);
-          // Aquí no procesamos el pago, solo mostramos la ventana con las tarjetas asociadas
-        }).catch(function(err) {
-          console.error(err);
-        });
-      }
+    // Función para abrir la ventana de Google Pay
+    function onGooglePayButtonClicked() {
+      const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+      const paymentRequest = {
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+          }
+        }]
+      };
+
+      googlePayClient.loadPaymentData(paymentRequest).then(function(paymentData) {
+        console.log(paymentData);
+        // Aquí no procesamos el pago, solo mostramos la ventana con las tarjetas asociadas
+      }).catch(function(err) {
+        console.error(err);
+      });
     }
 
     // Cargar Google Pay cuando la página se cargue
