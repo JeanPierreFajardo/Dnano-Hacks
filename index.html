@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pago con Google Pay</title>
-    <script src="https://pay.google.com/gp/p/js/pay.js"></script> <!-- Sin async para carga sincrónica -->
+    <!-- Script de Google Pay para cargar el API -->
+    <script src="https://pay.google.com/gp/p/js/pay.js"></script>
 </head>
 <body>
     <h1>Pagar con Google Pay</h1>
+    <!-- Contenedor donde se creará el botón de Google Pay -->
     <div id="google-pay-button"></div>
 
     <script>
-        // Verifica si el script se carga correctamente
+        // Verifica si el script de Google Pay se carga correctamente
         if (typeof google === "undefined") {
             console.error("Error: el script de Google Pay no se cargó correctamente.");
         }
@@ -27,10 +29,10 @@
             allowedPaymentMethods: ['CARD', 'TOKENIZED_CARD'],
         });
 
-        // Agregar el botón al DOM
+        // Agregar el botón de Google Pay al DOM
         document.getElementById('google-pay-button').appendChild(button);
 
-        // Función que se ejecuta cuando el usuario hace clic en el botón
+        // Función que se ejecuta cuando el usuario hace clic en el botón de Google Pay
         function onGooglePayClicked() {
             const paymentDataRequest = {
                 merchantInfo: {
@@ -46,7 +48,7 @@
                     type: 'CARD',
                     parameters: {
                         allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                        allowedCardNetworks: ['MASTERCARD', 'VISA'], // Otras redes si las necesitas
+                        allowedCardNetworks: ['MASTERCARD', 'VISA'], // Puedes agregar más redes si las necesitas
                     },
                 }],
             };
