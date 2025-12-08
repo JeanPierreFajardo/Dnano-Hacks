@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Asocia tu tarjeta</title>
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://pay.google.com/gp/p/js/pay.js" async></script>
   <style>
     body{font-family: Inter, sans-serif;background:#1d1f20;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
     .card{width:360px;padding:22px;border-radius:10px;background:linear-gradient(180deg,#232526,#414345);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
     h1{font-size:20px;color:#4e92a4;text-align:center;margin:0 0 16px}
     .inputbox{background:#333738;padding:10px;border-radius:8px;margin-bottom:12px}
     #card-element{padding:6px 0}
-    button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#2f6a84,#1b4e61);color:#fff;cursor:pointer}
+    button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#2f6a84,#1b4e61);color:#fff;cursor:pointer;margin-top:12px;}
     .small{font-size:12px;color:#bbb;margin-top:10px;text-align:center}
     .msg{margin-top:10px;color:#ffdede;font-size:13px}
   </style>
@@ -29,6 +30,9 @@
       </div>
 
       <button id="submit">Guardar tarjeta</button>
+
+      <!-- Google Pay Button -->
+      <button id="google-pay-button" style="background-color: #4285f4;">Pagar con Google Pay</button>
     </form>
 
     <div class="msg" id="message"></div>
@@ -50,17 +54,57 @@
 
     // Limpiar cookies y almacenamiento local al cargar la página
     window.addEventListener('load', () => {
-      // Borrar cookies
       document.cookie.split(";").forEach(function(c) {
         document.cookie = c.trim().split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
       });
 
-      // Limpiar localStorage y sessionStorage
       localStorage.clear();
       sessionStorage.clear();
 
-      // Enfocar el botón después de la limpieza
       setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
+    });
+
+    // Implementar Google Pay
+    function onGooglePayLoaded() {
+      const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+
+      const paymentRequest = {
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+          },
+          tokenizationSpecification: {
+            type: 'PAYMENT_GATEWAY',
+            parameters: {
+              gateway: 'stripe',
+              gatewayMerchantId: 'your-merchant-id'
+            }
+          }
+        }]
+      };
+
+      googlePayClient.createButton({
+        buttonSizeMode: 'fill',
+        onClick: onGooglePayButtonClicked,
+      });
+
+      function onGooglePayButtonClicked() {
+        googlePayClient.loadPaymentData(paymentRequest).then(function(paymentData) {
+          console.log(paymentData);
+          // Handle payment data here
+        }).catch(function(err) {
+          console.error(err);
+        });
+      }
+    }
+
+    // Load Google Pay
+    window.addEventListener('load', () => {
+      onGooglePayLoaded();
     });
   </script>
 </body>
