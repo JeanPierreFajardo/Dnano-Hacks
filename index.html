@@ -1,70 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pago con Google Pay</title>
-    <!-- Script de Google Pay para cargar el API -->
-    <script src="https://pay.google.com/gp/p/js/pay.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Asocia tu tarjeta</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://pay.google.com/gp/p/js/pay.js" async></script>
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+      background: #1d1f20;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      width: 360px;
+      padding: 22px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #232526, #414345);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      font-size: 20px;
+      color: #4e92a4;
+      text-align: center;
+      margin: 0 0 16px;
+    }
+    .inputbox {
+      background: #333738;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    #card-element {
+      padding: 6px 0;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      background: linear-gradient(90deg, #2f6a84, #1b4e61);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .small {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .msg {
+      margin-top: 10px;
+      color: #ffdede;
+      font-size: 13px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Pagar con Google Pay</h1>
-    <!-- Contenedor donde se creará el botón de Google Pay -->
-    <div id="google-pay-button"></div>
+  <div class="card">
+    <h1>Asocia tu tarjeta</h1>
 
-    <script>
-        // Verifica si el script de Google Pay se carga correctamente
-        if (typeof google === "undefined") {
-            console.error("Error: el script de Google Pay no se cargó correctamente.");
-        }
+    <form id="card-form" autocomplete="off" onsubmit="return false;">
+      <input type="text" name="no_autofill_username" id="no_autofill_username" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="off" />
+      <input type="password" name="no_autofill_password" id="no_autofill_password" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0" autocomplete="new-password" />  
 
-        // Inicializa el cliente de Google Pay con el entorno de producción
-        const paymentsClient = new google.payments.api.PaymentsClient({
-            environment: 'PRODUCTION' // Usamos el entorno de producción para la integración
-        });
+      <div class="inputbox">
+        <div id="card-element"></div>
+      </div>
 
-        // Crear el botón de Google Pay
-        const button = paymentsClient.createButton({
-            onClick: onGooglePayClicked,
-            allowedPaymentMethods: ['CARD', 'TOKENIZED_CARD'],
-        });
+      <button id="submit">Guardar tarjeta</button>
 
-        // Agregar el botón de Google Pay al DOM
-        document.getElementById('google-pay-button').appendChild(button);
+      <!-- Botón de Google Pay para abrir la ventana de Google Pay -->
+      <div id="google-pay-button"></div>
+    </form>
 
-        // Función que se ejecuta cuando el usuario hace clic en el botón de Google Pay
-        function onGooglePayClicked() {
-            const paymentDataRequest = {
-                merchantInfo: {
-                    merchantName: "Dnano Hackers Schools", // Nombre de tu tienda
-                    merchantId: "BCR2DN4T27KZNDIU", // Asegúrate de tener tu Merchant ID de Google Pay
-                },
-                transactionInfo: {
-                    totalPriceStatus: 'FINAL',
-                    totalPrice: '10.00', // Monto total a pagar (no visible en la interfaz)
-                    currencyCode: 'USD', // Cambia a la moneda que necesites
-                },
-                allowedPaymentMethods: [{
-                    type: 'CARD',
-                    parameters: {
-                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                        allowedCardNetworks: ['MASTERCARD', 'VISA'], // Puedes agregar más redes si las necesitas
-                    },
-                }],
-            };
+    <div class="msg" id="message"></div>
+    <div class="small">La tarjeta se asociará a tu cuenta de Google.</div>
+  </div>
 
-            // Cargar y procesar los datos del pago
-            paymentsClient.loadPaymentData(paymentDataRequest)
-                .then(function(paymentData) {
-                    console.log('Datos de pago:', paymentData);
-                    // Aquí es donde puedes enviar los datos a tu backend para procesar el pago
-                })
-                .catch(function(error) {
-                    console.error('Error al procesar el pago: ', error);
-                    // Mostrar mensaje de error si ocurre algún fallo
-                });
-        }
-    </script>
+  <script>
+    const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA");
+    const elements = stripe.elements();
+    const style = {
+      base: { color: '#ffffff', fontSize: '16px', '::placeholder': { color: '#9a888a' } },
+      invalid: { color: '#ff7a7a' }
+    };
+    const card = elements.create('card', { style });
+    card.mount('#card-element');
+
+    const submit = document.getElementById('submit');
+    const messageEl = document.getElementById('message');
+
+    // Limpiar cookies y almacenamiento local al cargar la página
+    window.addEventListener('load', () => {
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.trim().split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      });
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
+    });
+
+    // Configuración de Google Pay
+    function onGooglePayLoaded() {
+      const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+
+      const paymentRequest = {
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+          }
+        }]
+      };
+
+      const button = googlePayClient.createButton({
+        buttonSizeMode: 'fill',
+        onClick: onGooglePayButtonClicked,
+      });
+
+      // Limpiar cualquier contenido previo y agregar el botón de Google Pay
+      document.getElementById('google-pay-button').innerHTML = '';  // Limpiar contenido
+      document.getElementById('google-pay-button').appendChild(button);
+    }
+
+    // Función para abrir la ventana de Google Pay
+    function onGooglePayButtonClicked() {
+      const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+      const paymentRequest = {
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [{
+          type: 'CARD',
+          parameters: {
+            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+          }
+        }]
+      };
+
+      googlePayClient.loadPaymentData(paymentRequest).then(function(paymentData) {
+        console.log(paymentData);
+        // Aquí no procesamos el pago, solo mostramos la ventana con las tarjetas asociadas
+      }).catch(function(err) {
+        console.error(err);
+      });
+    }
+
+    // Cargar Google Pay cuando la página se cargue
+    window.addEventListener('load', () => {
+      onGooglePayLoaded();
+    });
+  </script>
 </body>
 </html>
-
