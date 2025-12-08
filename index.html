@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pago con Google Pay</title>
-    <script src="https://pay.google.com/gp/p/js/pay.js"></script>
+    <script src="https://pay.google.com/gp/p/js/pay.js"></script> <!-- Sin async para carga sincrónica -->
 </head>
 <body>
     <h1>Pagar con Google Pay</h1>
@@ -16,22 +16,26 @@
             console.error("Error: el script de Google Pay no se cargó correctamente.");
         }
 
+        // Inicializa el cliente de Google Pay con el entorno de producción
         const paymentsClient = new google.payments.api.PaymentsClient({
             environment: 'PRODUCTION' // Usamos el entorno de producción para la integración
         });
 
+        // Crear el botón de Google Pay
         const button = paymentsClient.createButton({
             onClick: onGooglePayClicked,
             allowedPaymentMethods: ['CARD', 'TOKENIZED_CARD'],
         });
 
+        // Agregar el botón al DOM
         document.getElementById('google-pay-button').appendChild(button);
 
+        // Función que se ejecuta cuando el usuario hace clic en el botón
         function onGooglePayClicked() {
             const paymentDataRequest = {
                 merchantInfo: {
                     merchantName: "Tu tienda", // Nombre de tu tienda
-                    merchantId: "tu_merchant_id", // Asegúrate de tener tu Merchant ID
+                    merchantId: "tu_merchant_id", // Asegúrate de tener tu Merchant ID de Google Pay
                 },
                 transactionInfo: {
                     totalPriceStatus: 'FINAL',
@@ -47,16 +51,17 @@
                 }],
             };
 
+            // Cargar y procesar los datos del pago
             paymentsClient.loadPaymentData(paymentDataRequest)
                 .then(function(paymentData) {
                     console.log('Datos de pago:', paymentData);
-                    // Aquí es donde llamas a tu backend para procesar el pago.
+                    // Aquí es donde puedes enviar los datos a tu backend para procesar el pago
                 })
                 .catch(function(error) {
                     console.error('Error al procesar el pago: ', error);
+                    // Mostrar mensaje de error si ocurre algún fallo
                 });
         }
     </script>
 </body>
 </html>
-
