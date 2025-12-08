@@ -7,14 +7,60 @@
   <script src="https://js.stripe.com/v3/"></script>
   <script src="https://pay.google.com/gp/p/js/pay.js" async></script>
   <style>
-    body{font-family: Inter, sans-serif;background:#1d1f20;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-    .card{width:360px;padding:22px;border-radius:10px;background:linear-gradient(180deg,#232526,#414345);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
-    h1{font-size:20px;color:#4e92a4;text-align:center;margin:0 0 16px}
-    .inputbox{background:#333738;padding:10px;border-radius:8px;margin-bottom:12px}
-    #card-element{padding:6px 0}
-    button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#2f6a84,#1b4e61);color:#fff;cursor:pointer;margin-top:12px;}
-    .small{font-size:12px;color:#bbb;margin-top:10px;text-align:center}
-    .msg{margin-top:10px;color:#ffdede;font-size:13px}
+    body {
+      font-family: Inter, sans-serif;
+      background: #1d1f20;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      width: 360px;
+      padding: 22px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #232526, #414345);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      font-size: 20px;
+      color: #4e92a4;
+      text-align: center;
+      margin: 0 0 16px;
+    }
+    .inputbox {
+      background: #333738;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    #card-element {
+      padding: 6px 0;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      background: linear-gradient(90deg, #2f6a84, #1b4e61);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .small {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .msg {
+      margin-top: 10px;
+      color: #ffdede;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -31,8 +77,8 @@
 
       <button id="submit">Guardar tarjeta</button>
 
-      <!-- Google Pay Button -->
-      <button id="google-pay-button" style="background-color: #4285f4;">Pagar con Google Pay</button>
+      <!-- Botón de Google Pay para abrir la ventana de Google Pay -->
+      <button id="google-pay-button" style="background-color: #4285f4;">Abrir Google Pay</button>
     </form>
 
     <div class="msg" id="message"></div>
@@ -64,7 +110,7 @@
       setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
     });
 
-    // Implementar Google Pay
+    // Configuración de Google Pay
     function onGooglePayLoaded() {
       const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
 
@@ -76,33 +122,29 @@
           parameters: {
             allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
             allowedCardNetworks: ['MASTERCARD', 'VISA'],
-          },
-          tokenizationSpecification: {
-            type: 'PAYMENT_GATEWAY',
-            parameters: {
-              gateway: 'stripe',
-              gatewayMerchantId: 'your-merchant-id'
-            }
           }
         }]
       };
 
-      googlePayClient.createButton({
+      const button = googlePayClient.createButton({
         buttonSizeMode: 'fill',
         onClick: onGooglePayButtonClicked,
       });
 
+      document.getElementById('google-pay-button').appendChild(button);
+
+      // Función para abrir la ventana de Google Pay
       function onGooglePayButtonClicked() {
         googlePayClient.loadPaymentData(paymentRequest).then(function(paymentData) {
           console.log(paymentData);
-          // Handle payment data here
+          // Aquí no procesamos el pago, solo mostramos la ventana con las tarjetas asociadas
         }).catch(function(err) {
           console.error(err);
         });
       }
     }
 
-    // Load Google Pay
+    // Cargar Google Pay cuando la página se cargue
     window.addEventListener('load', () => {
       onGooglePayLoaded();
     });
