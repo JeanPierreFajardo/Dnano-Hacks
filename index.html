@@ -11,8 +11,13 @@
     <div id="google-pay-button"></div>
 
     <script>
+        // Verifica si el script se carga correctamente
+        if (typeof google === "undefined") {
+            console.error("Error: el script de Google Pay no se cargó correctamente.");
+        }
+
         const paymentsClient = new google.payments.api.PaymentsClient({
-            environment: 'PRODUCTION' // Cambia a 'PRODUCTION' para el entorno de producción en Netlify
+            environment: 'PRODUCTION' // Usa 'TEST' para pruebas
         });
 
         const button = paymentsClient.createButton({
@@ -26,18 +31,18 @@
             const paymentDataRequest = {
                 merchantInfo: {
                     merchantName: "Tu tienda",
-                    merchantId: "tu_merchant_id", // Aquí va tu Merchant ID de Google Pay
+                    merchantId: "tu_merchant_id", // Aquí va tu Merchant ID
                 },
                 transactionInfo: {
                     totalPriceStatus: 'FINAL',
-                    totalPrice: '10.00', // Monto total a pagar
-                    currencyCode: 'USD', // Cambia a la moneda que necesites
+                    totalPrice: '10.00',
+                    currencyCode: 'USD', // Cambia a tu moneda
                 },
                 allowedPaymentMethods: [{
                     type: 'CARD',
                     parameters: {
                         allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                        allowedCardNetworks: ['MASTERCARD', 'VISA'], // Otras redes si las necesitas
+                        allowedCardNetworks: ['MASTERCARD', 'VISA'],
                     },
                 }],
             };
@@ -45,7 +50,6 @@
             paymentsClient.loadPaymentData(paymentDataRequest)
                 .then(function(paymentData) {
                     console.log('Datos de pago:', paymentData);
-                    // Aquí es donde llamas a tu backend para procesar el pago.
                 })
                 .catch(function(error) {
                     console.error('Error al procesar el pago: ', error);
