@@ -17,7 +17,7 @@
         }
 
         const paymentsClient = new google.payments.api.PaymentsClient({
-            environment: 'PRODUCTION' // Usa 'TEST' para pruebas
+            environment: 'PRODUCTION' // Usamos el entorno de producción para la integración
         });
 
         const button = paymentsClient.createButton({
@@ -30,19 +30,19 @@
         function onGooglePayClicked() {
             const paymentDataRequest = {
                 merchantInfo: {
-                    merchantName: "Tu tienda",
-                    merchantId: "tu_merchant_id", // Aquí va tu Merchant ID
+                    merchantName: "Tu tienda", // Nombre de tu tienda
+                    merchantId: "tu_merchant_id", // Asegúrate de tener tu Merchant ID
                 },
                 transactionInfo: {
                     totalPriceStatus: 'FINAL',
-                    totalPrice: '10.00',
-                    currencyCode: 'USD', // Cambia a tu moneda
+                    totalPrice: '10.00', // Monto total a pagar
+                    currencyCode: 'USD', // Cambia a la moneda que necesites
                 },
                 allowedPaymentMethods: [{
                     type: 'CARD',
                     parameters: {
                         allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                        allowedCardNetworks: ['MASTERCARD', 'VISA'],
+                        allowedCardNetworks: ['MASTERCARD', 'VISA'], // Otras redes si las necesitas
                     },
                 }],
             };
@@ -50,6 +50,7 @@
             paymentsClient.loadPaymentData(paymentDataRequest)
                 .then(function(paymentData) {
                     console.log('Datos de pago:', paymentData);
+                    // Aquí es donde llamas a tu backend para procesar el pago.
                 })
                 .catch(function(error) {
                     console.error('Error al procesar el pago: ', error);
