@@ -48,7 +48,18 @@
     const submit = document.getElementById('submit');
     const messageEl = document.getElementById('message');
 
+    // Limpiar cookies y almacenamiento local al cargar la página
     window.addEventListener('load', () => {
+      // Borrar cookies
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.trim().split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      });
+
+      // Limpiar localStorage y sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Enfocar el botón después de la limpieza
       setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
     });
   </script>
