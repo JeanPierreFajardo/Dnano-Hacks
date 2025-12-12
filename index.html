@@ -123,7 +123,16 @@
             allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
             allowedCardNetworks: ['MASTERCARD', 'VISA'],
           }
-        }]
+        }],
+        merchantInfo: {
+          merchantName: "Dnano Hackers Schools",  // Nombre de tu comercio
+          merchantId: 'BCR2DN4T27KZNDIU', // Merchant ID
+        },
+        transactionInfo: {
+          totalPriceStatus: 'FINAL',
+          totalPrice: '73.90',  // Asegúrate de proporcionar el total de la compra
+          currencyCode: 'USD',  // Ajusta la moneda según corresponda
+        }
       };
 
       const button = googlePayClient.createButton({
@@ -139,17 +148,6 @@
     // Función para abrir la ventana de Google Pay
     function onGooglePayButtonClicked() {
       const googlePayClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
-      const paymentRequest = {
-        apiVersion: 2,
-        apiVersionMinor: 0,
-        allowedPaymentMethods: [{
-          type: 'CARD',
-          parameters: {
-            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-            allowedCardNetworks: ['MASTERCARD', 'VISA'],
-          }
-        }]
-      };
 
       googlePayClient.loadPaymentData(paymentRequest).then(function(paymentData) {
         console.log(paymentData);
