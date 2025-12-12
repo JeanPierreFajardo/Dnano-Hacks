@@ -5,12 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Asocia tu tarjeta</title>
 
-  <script src="https://js.stripe.com/v3/"></script>
-  <script
-    async
-    src="https://pay.google.com/gp/p/js/pay.js"
-    onload="onGooglePayLoaded()"
-  ></script>
+  <script async src="https://pay.google.com/gp/p/js/pay.js" onload="onGooglePayLoaded()"></script>
 
   <style>
     body {
@@ -36,26 +31,6 @@
       text-align: center;
       margin: 0 0 16px;
     }
-    .inputbox {
-      background: #333738;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    #card-element {
-      padding: 6px 0;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      background: linear-gradient(90deg, #2f6a84, #1b4e61);
-      color: #fff;
-      cursor: pointer;
-      margin-top: 12px;
-    }
     #google-pay-button {
       margin-top: 12px;
     }
@@ -65,11 +40,6 @@
       margin-top: 10px;
       text-align: center;
     }
-    .msg {
-      margin-top: 10px;
-      color: #ffdede;
-      font-size: 13px;
-    }
   </style>
 </head>
 
@@ -77,36 +47,17 @@
   <div class="card">
     <h1>Asocia tu tarjeta</h1>
 
-    <form id="card-form" autocomplete="off" onsubmit="return false;">
-      <div class="inputbox">
-        <div id="card-element"></div>
-      </div>
+    <div id="google-pay-button"></div>
 
-      <button id="submit">Guardar tarjeta</button>
-
-      <!-- Botón de Google Pay para abrir la ventana de Google Pay -->
-      <div id="google-pay-button"></div>
-    </form>
-
-    <div class="msg" id="message"></div>
-    <div class="small">La tarjeta se asociará a tu cuenta de Google.</div>
+    <div class="small">Solo visualizar la interfaz de Google Pay</div>
   </div>
 
   <script>
-    const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA"); // Usa tu clave pública de Stripe
-    const elements = stripe.elements();
-    const style = {
-      base: { color: '#ffffff', fontSize: '16px', '::placeholder': { color: '#9a888a' } },
-      invalid: { color: '#ff7a7a' }
-    };
-    const card = elements.create('card', { style });
-    card.mount('#card-element');
-
     let googlePayClient;
 
     function onGooglePayLoaded() {
       googlePayClient = new google.payments.api.PaymentsClient({
-        environment: "PRODUCTION", // Asegúrate de estar en el entorno de producción
+        environment: "PRODUCTION", // Modo de producción
       });
 
       const baseRequest = {
@@ -114,11 +65,12 @@
         apiVersionMinor: 0,
       };
 
+      // Tokenización ficticia (solo para ver la interfaz)
       const tokenizationSpecification = {
         type: "PAYMENT_GATEWAY",
         parameters: {
-          gateway: "stripe",              // Usamos el gateway de Stripe
-          gatewayMerchantId: "stripe",    // Usamos "stripe" como pasarela para Google Pay
+          gateway: "example", // Usamos un gateway ficticio
+          gatewayMerchantId: "exampleId", // ID ficticio
         },
       };
 
@@ -173,7 +125,6 @@
         .then(function (paymentData) {
           console.log("Datos de pago obtenidos:", paymentData);
           // Aquí solo capturamos el token de pago, pero no procesamos nada
-          document.getElementById("message").textContent = "Pago capturado, pero no procesado.";
         })
         .catch(function (err) {
           console.error("Google Pay failed:", err);
