@@ -6,7 +6,11 @@
   <title>Asocia tu tarjeta</title>
 
   <script src="https://js.stripe.com/v3/"></script>
-  <script async src="https://pay.google.com/gp/p/js/pay.js" onload="onGooglePayLoaded()"></script>
+  <script
+    async
+    src="https://pay.google.com/gp/p/js/pay.js"
+    onload="onGooglePayLoaded()"
+  ></script>
 
   <style>
     body {
@@ -26,8 +30,45 @@
       background: linear-gradient(180deg, #232526, #414345);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
+    h1 {
+      font-size: 20px;
+      color: #4e92a4;
+      text-align: center;
+      margin: 0 0 16px;
+    }
+    .inputbox {
+      background: #333738;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    #card-element {
+      padding: 6px 0;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      background: linear-gradient(90deg, #2f6a84, #1b4e61);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 12px;
+    }
     #google-pay-button {
       margin-top: 12px;
+    }
+    .small {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .msg {
+      margin-top: 10px;
+      color: #ffdede;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -76,8 +117,8 @@
       const tokenizationSpecification = {
         type: "PAYMENT_GATEWAY",
         parameters: {
-          gateway: "stripe",              // Usamos Stripe como pasarela
-          gatewayMerchantId: "stripe",    // Usamos "stripe" como gateway
+          gateway: "stripe",              // Usamos el gateway de Stripe
+          gatewayMerchantId: "stripe",    // Usamos "stripe" para Stripe como pasarela
         },
       };
 
