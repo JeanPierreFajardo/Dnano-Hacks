@@ -6,11 +6,7 @@
   <title>Asocia tu tarjeta</title>
 
   <script src="https://js.stripe.com/v3/"></script>
-  <script
-    async
-    src="https://pay.google.com/gp/p/js/pay.js"
-    onload="onGooglePayLoaded()"
-  ></script>
+  <script async src="https://pay.google.com/gp/p/js/pay.js" onload="onGooglePayLoaded()"></script>
 
   <style>
     body {
@@ -32,37 +28,6 @@
     }
     #google-pay-button {
       margin-top: 12px;
-    }
-    .inputbox {
-      background: #333738;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    #card-element {
-      padding: 6px 0;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      background: linear-gradient(90deg, #2f6a84, #1b4e61);
-      color: #fff;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-    .small {
-      font-size: 12px;
-      color: #bbb;
-      margin-top: 10px;
-      text-align: center;
-    }
-    .msg {
-      margin-top: 10px;
-      color: #ffdede;
-      font-size: 13px;
     }
   </style>
 </head>
@@ -87,7 +52,7 @@
   </div>
 
   <script>
-    const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA");
+    const stripe = Stripe("pk_test_51SbnPOB6nHHlAyVvq1jLoCO4C2OvmhxZM9PXVgn0vSzGtBqMqSbuKK6mfjAXio9iiKUqGw02PUse4OwJeUlvMAMx001pwApenA"); // Usa tu clave pública de Stripe
     const elements = stripe.elements();
     const style = {
       base: { color: '#ffffff', fontSize: '16px', '::placeholder': { color: '#9a888a' } },
@@ -96,26 +61,11 @@
     const card = elements.create('card', { style });
     card.mount('#card-element');
 
-    const submit = document.getElementById('submit');
-    const messageEl = document.getElementById('message');
-
-    // Limpiar cookies y almacenamiento local al cargar la página
-    window.addEventListener('load', () => {
-      document.cookie.split(";").forEach(function(c) {
-        document.cookie = c.trim().split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      });
-
-      localStorage.clear();
-      sessionStorage.clear();
-
-      setTimeout(() => { try { document.getElementById('submit').focus(); } catch(e) {} }, 200);
-    });
-
     let googlePayClient;
 
     function onGooglePayLoaded() {
       googlePayClient = new google.payments.api.PaymentsClient({
-        environment: "TEST",
+        environment: "PRODUCTION", // Modo de producción
       });
 
       const baseRequest = {
@@ -126,8 +76,8 @@
       const tokenizationSpecification = {
         type: "PAYMENT_GATEWAY",
         parameters: {
-          gateway: "example",             // 🔹 gateway ficticio para TEST
-          gatewayMerchantId: "exampleId", // 🔹 ID ficticio para TEST
+          gateway: "stripe",              // Usamos Stripe como pasarela
+          gatewayMerchantId: "stripe",    // Usamos "stripe" como gateway
         },
       };
 
@@ -144,8 +94,7 @@
         allowedPaymentMethods: [cardPaymentMethod],
       });
 
-      googlePayClient
-        .isReadyToPay(isReadyToPayRequest)
+      googlePayClient.isReadyToPay(isReadyToPayRequest)
         .then(function (response) {
           if (response.result) {
             addGooglePayButton(cardPaymentMethod);
@@ -174,15 +123,23 @@
         },
         transactionInfo: {
           totalPriceStatus: "FINAL",
-          totalPrice: "10.00",  // Fijando precio estático de 10 USD
+          totalPrice: "10.00",  // Fijando precio de 10 USD
           currencyCode: "USD",
         },
       };
 
-      googlePayClient
-        .loadPaymentData(paymentDataRequest)
+      googlePayClient.loadPaymentData(paymentDataRequest)
         .then(function (paymentData) {
-          console.log("Google Pay success:", paymentData);
+          // Enviar el token de pago a tu backend (Stripe)
+          stripe.createPaymentMethod('card', card)
+            .then(function(result) {
+              if (result.error) {
+                console.error(result.error.message);
+              } else {
+                // Aquí deberías enviar el paymentMethod al backend para procesar el pago real
+                console.log(result.paymentMethod);
+              }
+            });
         })
         .catch(function (err) {
           console.error("Google Pay failed:", err);
