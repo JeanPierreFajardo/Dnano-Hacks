@@ -146,9 +146,20 @@
     function addGooglePayButton(cardPaymentMethod) {
       const button = googlePayClient.createButton({
         onClick: () => onGooglePayButtonClicked(cardPaymentMethod),
+    
+        // ✅ Reglas oficiales de Google Pay
+        buttonType: 'pay',            // pay | buy | donate | checkout
+        buttonColor: 'white',         // white | black
+        buttonSizeMode: 'fill',       // fill | static
       });
-      document.getElementById("google-pay-button").appendChild(button);
+    
+      const container = document.getElementById("google-pay-button");
+      container.style.marginTop = "16px";   // espacio libre requerido
+      container.style.minHeight = "48px";   // altura mínima recomendada
+    
+      container.appendChild(button);
     }
+
 
     function onGooglePayButtonClicked(cardPaymentMethod) {
       const paymentDataRequest = {
@@ -179,3 +190,4 @@
   </script>
 </body>
 </html>
+
